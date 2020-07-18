@@ -45,9 +45,9 @@ class TargetPractice:
 
 			if self.stats.game_active:
 				self.ship.update()
-				self._update_bullets()
-				self.target._target_update(cumulative_bullets)
-
+				self._update_bullets()						
+				self.target.move_target(self._target_update())		#_target update() figures the distance based on shots fired
+				self.target.update_target()
 			self._update_screen()
 
 	def _check_events(self):
@@ -95,7 +95,8 @@ class TargetPractice:
 
 		#get rid of any remaining any buns and bullets
 		self.bullets.empty()
-			#create a new batch and center the ship
+		
+		#center the ship
 		self.ship.center_ship()
 
 	def _fire_bullet(self):
@@ -103,24 +104,46 @@ class TargetPractice:
 		if len(self.bullets)< self.settings.bullets_allowed:
 			new_bullet = Bullet(self)
 			self.bullets.add(new_bullet)
-		#add a total bullet counter
+		#add a total bullet counter - used to dedice when to move target
 			self.settings.cumulative_bullets += 1
-			print(self.settings.cumulative_bullets)
 
 	def _update_bullets(self):
 		""" updated bullet position and gets rid of old bullets"""
+
 		#update bullet positons.
 		self.bullets.update()
+		
 		# check to see if any bullet hit the target, if so, get rid of it
 		for bullet in self.bullets.copy():
 			collisions = bullet.rect.colliderect(self.target)
 			if collisions:
 				self.bullets.remove(bullet)
+		
 		#if bullet misses (reaches right edge), get rid of it and count miss
 			elif bullet.rect.left >= self.settings.screen_width:
 				self.bullets.remove(bullet)
 				self.miss_count +=1
 				self._check_max_miss()
+	
+	def _target_update(self):
+		""" move target to right out every 10 shots - returns a value to be used in target.move_target()"""
+		if self.settings.cumulative_bullets <= 10:
+			self.settings.target_distance = 0.1
+		elif self.settings.cumulative_bullets <= 20:
+			self.settings.target_distance = 0.2
+		elif self.settings.cumulative_bullets <= 30:
+			self.settings.target_distance = 0.3
+		elif self.settings.cumulative_bullets <= 40:
+			self.settings.target_distance = 0.4
+		elif self.settings.cumulative_bullets <= 50:
+			self.settings.target_distance = 0.5
+		elif self.settings.cumulative_bullets <= 60:
+			self.settings.target_distance = 0.6
+		elif self.settings.cumulative_bullets <= 70:
+			self.settings.target_distance = 0.7
+		else:
+			self.settings.target_distance = 0.8
+		return self.settings.target_distance
 
 	def _check_max_miss(self):
 		""" check to see if miss_count has reached max - then flag active off"""
@@ -128,7 +151,7 @@ class TargetPractice:
 			self.stats.game_active = False
 
 	def _update_stats(self):
-		"""reset miss count to 0"""
+		"""reset miss count to 0, bullets fired to 0 and target distance to 10%"""
 		self.miss_count = 0
 		self.settings.initialize_dynamic_target_distance()
 
@@ -147,6 +170,5 @@ class TargetPractice:
 
 if __name__ == '__main__':
 	# Make a game instance, and run the game.q
-	cumulative_bullets = 0
 	tp = TargetPractice()
 	tp.run_game()

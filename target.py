@@ -32,6 +32,12 @@ class Target:
 		self.update()
 		self.screen.fill(self.target_color, self.rect)
 
+	def move_target(self, distance_adjustment):
+		""" moves the target further out as a % of the screen """
+		self.x = float(self.screen_rect.right - self.width)
+		self.x = self.x * distance_adjustment
+		self.rect.x = self.x
+
 	def check_top(self):
 		""" Checks top to target to see if it hit top of screen"""
 		if self.rect.top  <=0:
@@ -46,31 +52,4 @@ class Target:
 		self.y += (self.settings.target_speed * self.target_direction)
 		self.rect.y = self.y
 
-	def _target_update(self,cumulative_bullets):
-		""" move target to right out every 10 shots"""
-		print(f"_target_update {cumulative_bullets}")
-		if cumulative_bullets == 0:
-			self.settings.target_distance = 0.8
-		elif cumulative_bullets >= 70:
-			self.settings.target_distance = 0.7
-		elif cumulative_bullets >= 60:
-			self.settings.target_distance = 0.6
-		elif cumulative_bullets >= 50:
-			target_distance = 0.5
-		elif cumulative_bullets >= 40:
-			self.settings.target_distance = 0.4
-		elif cumulative_bullets >= 30:
-			self.settings.target_distance = 0.3
-		elif cumulative_bullets >= 20:
-			self.settings.target_distance = 0.2
-		else:
-			self.settings.target_distance = 0.1
 
-		self.x = float(self.screen_rect.right - self.width)
-		self.x = self.x * self.settings.target_distance
-		self.rect.x = self.x
-
-		self.check_top()
-		self.check_bottom()
-		self.update()
-		
